@@ -139,6 +139,10 @@ class ClassVisitor extends NodeVisitorAbstract
     {
         if ($const->name instanceof Node\Name) {
             if (isset($const->name->parts[0])) {
+                if($const->name->parts[0] === 'null') {
+                    return null;
+                }
+
                 return $const->name->parts[0];
             }
         }

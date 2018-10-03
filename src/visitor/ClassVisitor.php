@@ -49,7 +49,7 @@ class ClassVisitor extends NodeVisitorAbstract
             $class = new ClassModel($namespace, $stmt->name->name, ClassModel::buildFlags($stmt->isAbstract(), $stmt->isFinal(), $stmt->isAnonymous()));
 
             foreach ($stmt->stmts as $child) {
-                if ($child instanceof Node\Stmt\Const_) {
+                if ($child instanceof Node\Stmt\ClassConst) {
                     $class->addConstant($this->createConstantModel($child));
                 } elseif ($child instanceof Node\Stmt\Property) {
                     $class->addProperty($this->createPropertyModel($child));
@@ -64,7 +64,7 @@ class ClassVisitor extends NodeVisitorAbstract
         return null;
     }
 
-    protected function createConstantModel(Node\Stmt\Const_ $stmt): ?ConstantModel
+    protected function createConstantModel(Node\Stmt\ClassConst $stmt): ?ConstantModel
     {
         if (isset($stmt->consts[0])) {
             $const = $stmt->consts[0];
@@ -78,10 +78,10 @@ class ClassVisitor extends NodeVisitorAbstract
 
     protected function createPropertyModel(Node\Stmt\Property $stmt): ?PropertyModel
     {
-        if (isset($node->props[0])) {
+        if (isset($stmt->props[0])) {
             $property = $stmt->props[0];
             if ($property->name instanceof Node\Identifier) {
-                return new PropertyModel($property->name, PropertyModel::buildFlags($stmt->isPublic(), $stmt->isProtected(), $stmt->isPrivate(), $stmt->isStatic()), $this->fetchExprValue($property->default));
+                return new PropertyModel($property->name->name, PropertyModel::buildFlags($stmt->isPublic(), $stmt->isProtected(), $stmt->isPrivate(), $stmt->isStatic()), $this->fetchExprValue($property->default));
             }
         }
 

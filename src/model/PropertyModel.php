@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 namespace jacknoordhuis\classinformationdumper\model;
 
-class PropertyModel extends ModelVisiblity
+class PropertyModel extends ModelStatic
 {
     /** @var string */
     protected $name = '';

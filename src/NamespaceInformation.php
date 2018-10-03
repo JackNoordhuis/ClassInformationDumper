@@ -51,7 +51,8 @@ class NamespaceInformation
      *
      * @return string
      */
-    public function getSubjectNamespace() : string {
+    public function getSubjectNamespace(): string
+    {
         return $this->subject_directory;
     }
 
@@ -60,18 +61,18 @@ class NamespaceInformation
      *
      * @return array
      */
-    public function getClassInformation() : array {
+    public function getClassInformation(): array
+    {
         $classes = [];
 
-        foreach($this->subject_explorer->getClasses() as $file => $class) {
+        foreach ($this->subject_explorer->getClasses() as $file => $class) {
             try {
                 $classes[$class] = (new ClassInformation($class))->getInformation();
-            } catch(\Throwable $e) {
-                echo 'Unable to retrieve information for class "' . $class . '". ' . $e->getMessage() . ' File: ' . $e->getFile() . ' at line: ' . $e->getLine();
+            } catch (\Throwable $e) {
+                echo 'Unable to retrieve information for class "'.$class.'". '.$e->getMessage().' File: '.$e->getFile().' at line: '.$e->getLine();
             }
         }
 
         return $classes;
     }
-
 }

@@ -20,7 +20,6 @@ namespace jacknoordhuis\classinformationdumper\model;
 
 abstract class ModelVisiblity extends Model
 {
-
     public const FLAG_PUBLIC = 0;
     public const FLAG_PROTECTED = 1;
     public const FLAG_PRIVATE = 2;
@@ -52,7 +51,8 @@ abstract class ModelVisiblity extends Model
     /**
      * @return array
      */
-    public function getAdditionalInformation() : array {
+    public function getAdditionalInformation(): array
+    {
         return [
             'public' => $this->isPublic(),
             'protected' => $this->isProtected(),

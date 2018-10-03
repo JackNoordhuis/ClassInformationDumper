@@ -53,7 +53,8 @@ class ClassInformation
      *
      * @return string
      */
-    public function getSubjectName() : string {
+    public function getSubjectName(): string
+    {
         return $this->subject_name;
     }
 
@@ -62,7 +63,8 @@ class ClassInformation
      *
      * @return \ReflectionClass
      */
-    public function getReflection() : \ReflectionClass {
+    public function getReflection(): \ReflectionClass
+    {
         return $this->subject_reflection;
     }
 
@@ -71,7 +73,8 @@ class ClassInformation
      *
      * @return array
      */
-    public function getInformation() : array {
+    public function getInformation(): array
+    {
         return [
             'constants' => $this->getConstantInformation(),
             'properties' => $this->getPropertyInformation(),
@@ -84,10 +87,11 @@ class ClassInformation
      *
      * @return array
      */
-    public function getConstantInformation() : array {
+    public function getConstantInformation(): array
+    {
         $constants = [];
-        foreach($this->subject_reflection->getReflectionConstants() as $const) {
-            if(!$const->isPrivate()) {
+        foreach ($this->subject_reflection->getReflectionConstants() as $const) {
+            if (! $const->isPrivate()) {
                 $constants[] = $const->getName();
             }
         }
@@ -100,7 +104,8 @@ class ClassInformation
      *
      * @return array
      */
-    public function getPropertyInformation() : array {
+    public function getPropertyInformation(): array
+    {
         $properties = [
             'normal' => [],
             'static' => [],
@@ -108,7 +113,7 @@ class ClassInformation
 
         $filter = ReflectionProperty::IS_STATIC | ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED;
 
-        foreach($this->subject_reflection->getProperties($filter) as $property) {
+        foreach ($this->subject_reflection->getProperties($filter) as $property) {
             $properties[$property->isStatic() ? 'static' : 'normal'][] = $property->getName();
         }
 
@@ -120,7 +125,8 @@ class ClassInformation
      *
      * @return array
      */
-    public function getMethodInformation() : array {
+    public function getMethodInformation(): array
+    {
         $methods = [
             'normal' => [],
             'static' => [],
@@ -128,11 +134,10 @@ class ClassInformation
 
         $filter = ReflectionMethod::IS_STATIC | ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED;
 
-        foreach($this->subject_reflection->getMethods($filter) as $method) {
+        foreach ($this->subject_reflection->getMethods($filter) as $method) {
             $methods[$method->isStatic() ? 'static' : 'normal'][] = $method->getName();
         }
 
         return $methods;
     }
-
 }

@@ -50,7 +50,8 @@ class DirectoryInformation
      *
      * @return string
      */
-    public function getSubjectNamespace() : string {
+    public function getSubjectNamespace(): string
+    {
         return $this->subject_directory;
     }
 
@@ -59,36 +60,38 @@ class DirectoryInformation
      *
      * @return array
      */
-    public function getClassInformation() : array {
+    public function getClassInformation(): array
+    {
         $classes = [];
 
-        foreach($this->getFiles() as $file) {
+        foreach ($this->getFiles() as $file) {
             try {
-                $parser        = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-                $traverser     = new NodeTraverser;
+                $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+                $traverser = new NodeTraverser;
 
                 $stmts = $parser->parse(file_get_contents($file));
                 $traverser->addVisitor($classVisitor = new ClassVisitor());
 
                 $traverser->traverse($stmts);
 
-                foreach($classVisitor->getClasses() as $class) {
+                foreach ($classVisitor->getClasses() as $class) {
                     $classes[$class->getFullyQualifiedNamespace()] = $class->getInformation();
                 }
-            } catch(\Throwable $e) {
-                echo 'Unable to retrieve information for file "' . $file . '". ' . $e->getMessage() . '. Line: ' . $e->getLine() . ' File: ' . $e->getFile();
+            } catch (\Throwable $e) {
+                echo 'Unable to retrieve information for file "'.$file.'". '.$e->getMessage().'. Line: '.$e->getLine().' File: '.$e->getFile();
             }
         }
 
         return $classes;
     }
 
-    public function getFiles() {
+    public function getFiles()
+    {
         $files = [];
 
         /** @var \SplFileInfo $file */
-        foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->subject_directory)) as $file) {
-            if($file->getExtension() === "php") {
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->subject_directory)) as $file) {
+            if ($file->getExtension() === "php") {
                 $files[] = $file->getRealPath();
             }
         }

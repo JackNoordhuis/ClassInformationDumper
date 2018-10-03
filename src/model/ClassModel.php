@@ -36,7 +36,6 @@ class ClassModel extends Model
     protected $methods = [];
 
     public const FLAG_ABSTRACT = 4;
-
     public const FLAG_FINAL = 5;
 
     public const FLAG_ANONYMOUS = 7;
@@ -168,13 +167,13 @@ class ClassModel extends Model
             'namespace' => $this->namespace,
             'name' => $this->shortName,
             'fully_namespace' => $this->getFullyQualifiedNamespace(),
-            'constants' => array_map(function(ConstantModel $constant){
+            'constants' => array_map(function (ConstantModel $constant) {
                 return $constant->getInformation();
             }, $this->constants),
-            'properties' => array_map(function(PropertyModel $property){
+            'properties' => array_map(function (PropertyModel $property) {
                 return $property->getInformation();
             }, $this->properties),
-            'methods' => array_map(function(MethodModel $method){
+            'methods' => array_map(function (MethodModel $method) {
                 return $method->getInformation();
             }, $this->methods),
             'abstract' => $this->isAbstract(),

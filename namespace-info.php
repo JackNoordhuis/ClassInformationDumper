@@ -28,7 +28,7 @@ $NAMESPACE = null;
 array_shift($ARGS); // remove the script name from the arguments list
 
 $pos = array_search('-f', $ARGS);
-if(!isset($pos) or $pos !== false) {
+if (! isset($pos) or $pos !== false) {
     $FORMAT = strtolower($ARGS[$pos + 1]);
 
     switch ($FORMAT) {
@@ -42,39 +42,39 @@ if(!isset($pos) or $pos !== false) {
             exit;
     }
 
-    array_splice($ARGS, $pos,2); // remove argument from array
+    array_splice($ARGS, $pos, 2); // remove argument from array
 }
 
 $pos = array_search('-o', $ARGS);
-if(!isset($pos) or $pos !== false) {
-    $OUT = __DIR__ . DIRECTORY_SEPARATOR . $ARGS[$pos + 1];
+if (! isset($pos) or $pos !== false) {
+    $OUT = __DIR__.DIRECTORY_SEPARATOR.$ARGS[$pos + 1];
 
-    array_splice($ARGS, $pos,2); // remove argument from array
+    array_splice($ARGS, $pos, 2); // remove argument from array
 }
 
-switch(count($ARGS)) {
+switch (count($ARGS)) {
     case 1:
         $NAMESPACE = $ARGS[0];
-        fprintf(STDERR,'Set scan namespace to \'%s\'%s',$NAMESPACE,PHP_EOL);
+        fprintf(STDERR, 'Set scan namespace to \'%s\'%s', $NAMESPACE, PHP_EOL);
         break;
     default:
-        fprintf(STDERR,'Error:\\tToo much parameters are specified!%s',PHP_EOL);
+        fprintf(STDERR, 'Error:\\tToo much parameters are specified!%s', PHP_EOL);
         exit;
 }
 
 $info = (new \jacknoordhuis\classinformationdumper\NamespaceInformation($NAMESPACE))->getClassInformation();
 
-if($OUT === null) {
-    fprintf(STDERR,'%s%s', json_encode($info), PHP_EOL);
+if ($OUT === null) {
+    fprintf(STDERR, '%s%s', json_encode($info), PHP_EOL);
 }
 $file = fopen($OUT, 'w') or die("Unable to open output file!\n");
-switch($FORMAT) {
+switch ($FORMAT) {
     case 'json':
         fwrite($file, json_encode($info));
         break;
     case 'php':
-        fwrite($file, '<?php' . PHP_EOL . PHP_EOL);
-        fwrite($file, var_export($info, true) . ';');
+        fwrite($file, '<?php'.PHP_EOL.PHP_EOL);
+        fwrite($file, var_export($info, true).';');
         break;
     case 'serialize':
         fwrite($file, serialize($info));

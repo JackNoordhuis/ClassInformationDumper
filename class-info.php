@@ -21,10 +21,10 @@ require 'vendor/autoload.php';
 $OUT = null;
 
 $pos = array_search('-o', $argv);
-if(!isset($pos) and $pos !== false) {
+if (! isset($pos) and $pos !== false) {
     $OUT = $argv[$pos + 1];
 }
 
-$o = new \jacknoordhuis\classinformationdumper\DirectoryInformation(__DIR__ . '/src');
+$o = new \jacknoordhuis\classinformationdumper\DirectoryInformation(__DIR__.'/src');
 
 var_dump($o->getClassInformation());

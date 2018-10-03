@@ -18,9 +18,9 @@ declare(strict_types=1);
 
 namespace jacknoordhuis\classinformationdumper;
 
-use PhpParser\Node;
+use jacknoordhuis\classinformationdumper\visitor\ClassVisitor;
+use jacknoordhuis\classinformationdumper\visitor\NamespaceVisitor;
 use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 
 use RecursiveIteratorIterator;
@@ -68,30 +68,12 @@ class DirectoryInformation
                 $traverser     = new NodeTraverser;
 
                 $stmts = $parser->parse(file_get_contents($file));
-
-                $traverser->addVisitor($visitor = new class extends NodeVisitorAbstract {
-                    public $namespace = '';
-                    public $classes = [];
-
-                    public function leaveNode(Node $node)
-                    {
-                        if($node instanceof Node\Stmt\Namespace_) {
-                            $this->namespace = $node->name->toString();
-                        }
-                        if($node instanceof Node\Stmt\Class_) {
-                            if($node->name instanceof Node\Identifier) {
-                                $this->classes[] = $node->name->name;
-                            }
-                        }
-                    }
-                });
+                $traverser->addVisitor($classVisitor = new ClassVisitor());
 
                 $traverser->traverse($stmts);
 
-                require_once $file;
-
-                foreach($visitor->classes as $class) {
-                    $classes[$visitor->namespace . '\\' . $class] = (new ClassInformation($visitor->namespace . '\\' . $class))->getInformation();
+                foreach($classVisitor->getClasses() as $class) {
+                    $classes[$class->getFullyQualifiedNamespace()] = $class->getInformation();
                 }
             } catch(\Throwable $e) {
                 echo 'Unable to retrieve information for file "' . $file . '". ' . $e->getMessage() . '. Line: ' . $e->getLine() . ' File: ' . $e->getFile();

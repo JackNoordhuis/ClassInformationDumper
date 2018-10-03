@@ -1,0 +1,22 @@
+{
+    "name": "jack/class-information-dumper",
+    "authors": [
+        {
+            "name": "Jack Noordhuis",
+            "email": "me@jacknoordhuis.net"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "thecodingmachine/class-explorer": "^1.0.0",
+        "104corp/cache": "^1.0",
+        "nikic/php-parser": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "jacknoordhuis\\classinformationdumper\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

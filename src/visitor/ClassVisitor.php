@@ -23,16 +23,20 @@ use jacknoordhuis\classinformationdumper\model\ConstantModel;
 use jacknoordhuis\classinformationdumper\model\InterfaceModel;
 use jacknoordhuis\classinformationdumper\model\MethodModel;
 use jacknoordhuis\classinformationdumper\model\PropertyModel;
+use jacknoordhuis\classinformationdumper\model\TraitModel;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
 class ClassVisitor extends NodeVisitorAbstract
 {
-    /** @var ClassModel[] */
+    /** @var \jacknoordhuis\classinformationdumper\model\ClassModel[] */
     protected $classes = [];
 
-    /** @var InterfaceModel[] */
+    /** @var \jacknoordhuis\classinformationdumper\model\InterfaceModel[] */
     protected $interfaces = [];
+
+    /** @var \jacknoordhuis\classinformationdumper\model\TraitModel[] */
+    protected $traits = [];
 
     public function leaveNode(Node $node)
     {
@@ -43,6 +47,8 @@ class ClassVisitor extends NodeVisitorAbstract
                         $this->classes[] = $this->createClassModel($node->name->toString(), $stmt);
                     } elseif ($stmt instanceof Node\Stmt\Interface_) {
                         $this->interfaces[] = $this->createInterfaceModel($node->name->toString(), $stmt);
+                    } elseif ($stmt instanceof Node\Stmt\Trait_) {
+                        $this->traits[] = $this->createTraitModel($node->name->toString(), $stmt);
                     }
                 }
             }
@@ -84,6 +90,25 @@ class ClassVisitor extends NodeVisitorAbstract
             }
 
             return $interface;
+        }
+
+        return null;
+    }
+
+    protected function createTraitModel(string $namespace, Node\Stmt\Trait_ $stmt): ?TraitModel
+    {
+        if ($stmt->name instanceof Node\Identifier) {
+            $trait = new TraitModel($namespace, $stmt->name->name);
+
+            foreach ($stmt->stmts as $child) {
+                if ($child instanceof Node\Stmt\Property) {
+                    $trait->addProperty($this->createPropertyModel($child));
+                } elseif ($child instanceof Node\Stmt\ClassMethod) {
+                    $trait->addMethod($this->createMethodModel($child));
+                }
+            }
+
+            return $trait;
         }
 
         return null;
@@ -218,5 +243,15 @@ class ClassVisitor extends NodeVisitorAbstract
     public function getInterfaces(): array
     {
         return $this->interfaces;
+    }
+
+    /**
+     * Retrieve the interfaces.
+     *
+     * @return TraitModel[]
+     */
+    public function getTraits(): array
+    {
+        return $this->traits;
     }
 }

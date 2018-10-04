@@ -20,8 +20,8 @@ namespace jacknoordhuis\classinformationdumper;
 
 use jacknoordhuis\classinformationdumper\model\ClassModel;
 use jacknoordhuis\classinformationdumper\model\InterfaceModel;
+use jacknoordhuis\classinformationdumper\model\TraitModel;
 use jacknoordhuis\classinformationdumper\visitor\ClassVisitor;
-use jacknoordhuis\classinformationdumper\visitor\NamespaceVisitor;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 
@@ -119,6 +119,21 @@ class DirectoryInformation
     }
 
     /**
+     * Get an array of all the trait models with their fully qualified namespace as the key.
+     *
+     * @return array
+     */
+    public function getTraitModels(): array
+    {
+        $traits = $this->visitor->getTraits();
+
+        return array_combine(
+            array_map(function(TraitModel $model) {
+                return $model->getFullyQualifiedNamespace();
+            }, $traits), $traits);
+    }
+
+    /**
      * Get an array of all the classes and their constants, properties and methods.
      *
      * @return array
@@ -147,6 +162,20 @@ class DirectoryInformation
     }
 
     /**
+     * Get an array of all the traits and their properties and methods.
+     *
+     * @return array
+     */
+    public function getTraitInformation(): array
+    {
+        $traits = $this->getTraitModels();
+
+        return array_map(function(TraitModel $model) {
+            return $model->getInformation();
+        }, $traits);
+    }
+
+    /**
      * Get an array of all the class and interface models and their constants, properties and methods.
      *
      * @return array
@@ -156,6 +185,7 @@ class DirectoryInformation
         return [
             'classes' => $this->getClassInformation(),
             'interfaces' => $this->getInterfaceInformation(),
+            'traits' => $this->getTraitInformation(),
         ];
     }
 

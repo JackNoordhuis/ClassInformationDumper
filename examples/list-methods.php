@@ -1,7 +1,7 @@
 <?php
 
 /**
- * namespace-info.php – ClassInformationDumper
+ * list-methods.php – ClassInformationDumper
  *
  * Copyright (C) 2018 Jack Noordhuis
  *
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-require 'vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use jacknoordhuis\classinformationdumper\utils\Helper;
 
@@ -25,7 +25,7 @@ $ARGS = $argv;
 $FORMAT = 'json';
 $OUT = null;
 
-$NAMESPACE = null;
+$DIRECTORY = null;
 
 array_shift($ARGS); // remove the script name from the arguments list
 
@@ -56,27 +56,40 @@ if (! isset($pos) or $pos !== false) {
 
 switch (count($ARGS)) {
     case 1:
-        $NAMESPACE = $ARGS[0];
-        fprintf(STDERR, 'Set scan namespace to \'%s\'%s', $NAMESPACE, PHP_EOL);
+        $DIRECTORY = realpath($ARGS[0]);
+        if ($DIRECTORY === false or ! is_dir($DIRECTORY)) {
+            fprintf(STDERR, 'Error:\\tSpecified directory \'%s\' could not be found or is not a directory!%s', ($DIRECTORY !== false) ? $DIRECTORY : $ARGS[0], PHP_EOL);
+            exit;
+        }
+        fprintf(STDERR, 'Set scan directory to \'%s\'%s', ($DIRECTORY !== false) ? $DIRECTORY : $ARGS[0], PHP_EOL);
         break;
     default:
         fprintf(STDERR, 'Error:\\tToo much parameters are specified!%s', PHP_EOL);
         exit;
 }
 
-$info = (new \jacknoordhuis\classinformationdumper\NamespaceInformation($NAMESPACE))->getClassInformation();
+$classes = (new \jacknoordhuis\classinformationdumper\DirectoryInformation($DIRECTORY))->getClassModels();
+
+$methodList = [];
+foreach ($classes as $class) {
+    foreach ($class->getMethods() as $method) {
+        if(!in_array($method->getName(), $methodList)) {
+            $methodList[] = $method->getName();
+        }
+    }
+}
 
 $lines = [];
 switch ($FORMAT) {
     case 'json':
-        $lines[] = json_encode($info);
+        $lines[] = json_encode($methodList);
         break;
     case 'php':
         $lines[] = '<?php'.PHP_EOL.PHP_EOL;
-        $lines[] = Helper::stripBlankLines(Helper::stripNumericKeys(var_export($info, true)).';';
+        $lines[] = Helper::stripBlankLines(Helper::stripNumericKeys(var_export($methodList, true))).';';
         break;
     case 'serialize':
-        $lines[] = serialize($info);
+        $lines[] = serialize($methodList);
         break;
 }
 

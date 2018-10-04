@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace jacknoordhuis\classinformationdumper;
 
+use jacknoordhuis\classinformationdumper\model\ClassModel;
 use jacknoordhuis\classinformationdumper\visitor\ClassVisitor;
 use jacknoordhuis\classinformationdumper\visitor\NamespaceVisitor;
 use PhpParser\NodeTraverser;
@@ -56,11 +57,9 @@ class DirectoryInformation
     }
 
     /**
-     * Get an array of all the classes and their constants, properties and methods.
-     *
-     * @return array
+     * @return \jacknoordhuis\classinformationdumper\model\ClassModel[]
      */
-    public function getClassInformation(): array
+    public function getClassModels(): array
     {
         $classes = [];
 
@@ -75,7 +74,7 @@ class DirectoryInformation
                 $traverser->traverse($stmts);
 
                 foreach ($classVisitor->getClasses() as $class) {
-                    $classes[$class->getFullyQualifiedNamespace()] = $class->getInformation();
+                    $classes[$class->getFullyQualifiedNamespace()] = $class;
                 }
             } catch (\Throwable $e) {
                 echo 'Unable to retrieve information for file "'.$file.'". '.$e->getMessage().'. Line: '.$e->getLine().' File: '.$e->getFile();
@@ -83,6 +82,25 @@ class DirectoryInformation
         }
 
         return $classes;
+    }
+
+    /**
+     * Get an array of all the classes and their constants, properties and methods.
+     *
+     * @return array
+     */
+    public function getClassInformation(): array
+    {
+        $classes = $this->getClassModels();
+
+        return array_combine(
+            array_map(function(ClassModel $model) {
+                return $model->getFullyQualifiedNamespace();
+            }, $classes),
+            array_map(function(ClassModel $model) {
+                return $model->getInformation();
+            }, $classes)
+        );
     }
 
     public function getFiles()

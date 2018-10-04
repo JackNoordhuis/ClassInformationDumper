@@ -18,6 +18,8 @@ declare(strict_types=1);
 
 require 'vendor/autoload.php';
 
+use jacknoordhuis\classinformationdumper\utils\Helper;
+
 $ARGS = $argv;
 
 $FORMAT = 'json';
@@ -75,7 +77,7 @@ switch ($FORMAT) {
         break;
     case 'php':
         $lines[] = '<?php'.PHP_EOL.PHP_EOL;
-        $lines[] = var_export($info, true).';';
+        $lines[] = Helper::stripBlankLines(Helper::stripNumericKeys(var_export($info, true))).';';
         break;
     case 'serialize':
         $lines[] = serialize($info);

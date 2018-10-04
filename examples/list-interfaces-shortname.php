@@ -1,7 +1,7 @@
 <?php
 
 /**
- * directory-info.php – ClassInformationDumper
+ * list-interfaces-shortname.php – ClassInformationDumper
  *
  * Copyright (C) 2018 Jack Noordhuis
  *
@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-require 'vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use jacknoordhuis\classinformationdumper\utils\Helper;
 
@@ -68,19 +68,23 @@ switch (count($ARGS)) {
         exit;
 }
 
-$info = (new \jacknoordhuis\classinformationdumper\DirectoryInformation($DIRECTORY))->getModelInformation();
+$interfaces = (new \jacknoordhuis\classinformationdumper\DirectoryInformation($DIRECTORY))->getInterfaceModels();
+
+$interfaceList = array_values(array_map(function (\jacknoordhuis\classinformationdumper\model\InterfaceModel $interfaceModel) {
+    return $interfaceModel->getShortName();
+}, $interfaces));
 
 $lines = [];
 switch ($FORMAT) {
     case 'json':
-        $lines[] = json_encode($info);
+        $lines[] = json_encode($interfaceList);
         break;
     case 'php':
         $lines[] = '<?php'.PHP_EOL.PHP_EOL;
-        $lines[] = Helper::stripBlankLines(Helper::stripNumericKeys(var_export($info, true))).';';
+        $lines[] = Helper::stripBlankLines(Helper::stripNumericKeys(var_export($interfaceList, true))).';';
         break;
     case 'serialize':
-        $lines[] = serialize($info);
+        $lines[] = serialize($interfaceList);
         break;
 }
 

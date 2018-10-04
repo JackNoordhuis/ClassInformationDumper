@@ -20,6 +20,7 @@ namespace jacknoordhuis\classinformationdumper\visitor;
 
 use jacknoordhuis\classinformationdumper\model\ClassModel;
 use jacknoordhuis\classinformationdumper\model\ConstantModel;
+use jacknoordhuis\classinformationdumper\model\InterfaceModel;
 use jacknoordhuis\classinformationdumper\model\MethodModel;
 use jacknoordhuis\classinformationdumper\model\PropertyModel;
 use PhpParser\Node;
@@ -30,6 +31,9 @@ class ClassVisitor extends NodeVisitorAbstract
     /** @var ClassModel[] */
     protected $classes = [];
 
+    /** @var InterfaceModel[] */
+    protected $interfaces = [];
+
     public function leaveNode(Node $node)
     {
         if ($node instanceof Node\Stmt\Namespace_) {
@@ -37,6 +41,8 @@ class ClassVisitor extends NodeVisitorAbstract
                 foreach ($node->stmts as $stmt) {
                     if ($stmt instanceof Node\Stmt\Class_) {
                         $this->classes[] = $this->createClassModel($node->name->toString(), $stmt);
+                    } elseif ($stmt instanceof Node\Stmt\Interface_) {
+                        $this->interfaces[] = $this->createInterfaceModel($node->name->toString(), $stmt);
                     }
                 }
             }
@@ -59,6 +65,25 @@ class ClassVisitor extends NodeVisitorAbstract
             }
 
             return $class;
+        }
+
+        return null;
+    }
+
+    protected function createInterfaceModel(string $namespace, Node\Stmt\Interface_ $stmt): ?InterfaceModel
+    {
+        if ($stmt->name instanceof Node\Identifier) {
+            $interface = new InterfaceModel($namespace, $stmt->name->name);
+
+            foreach ($stmt->stmts as $child) {
+                if ($child instanceof Node\Stmt\ClassConst) {
+                    $interface->addConstant($this->createConstantModel($child));
+                } elseif ($child instanceof Node\Stmt\ClassMethod) {
+                    $interface->addMethod($this->createMethodModel($child));
+                }
+            }
+
+            return $interface;
         }
 
         return null;
@@ -183,5 +208,15 @@ class ClassVisitor extends NodeVisitorAbstract
     public function getClasses(): array
     {
         return $this->classes;
+    }
+
+    /**
+     * Retrieve the interfaces.
+     *
+     * @return InterfaceModel[]
+     */
+    public function getInterfaces(): array
+    {
+        return $this->interfaces;
     }
 }

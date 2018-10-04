@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace jacknoordhuis\classinformationdumper;
 
 use jacknoordhuis\classinformationdumper\model\ClassModel;
+use jacknoordhuis\classinformationdumper\model\InterfaceModel;
 use jacknoordhuis\classinformationdumper\visitor\ClassVisitor;
 use jacknoordhuis\classinformationdumper\visitor\NamespaceVisitor;
 use PhpParser\NodeTraverser;
@@ -41,9 +42,20 @@ class DirectoryInformation
      */
     private $subject_directory;
 
+    /**
+     * The class visitor that scrapes information from the traverser.
+     *
+     * @var ClassVisitor
+     */
+    private $visitor;
+
     public function __construct(string $namespace)
     {
         $this->subject_directory = $namespace;
+
+        $this->visitor = new ClassVisitor();
+
+        $this->fetchModels();
     }
 
     /**
@@ -57,31 +69,53 @@ class DirectoryInformation
     }
 
     /**
-     * @return \jacknoordhuis\classinformationdumper\model\ClassModel[]
+     * Fetch all the data from the subject directories files.
      */
-    public function getClassModels(): array
+    protected function fetchModels(): void
     {
-        $classes = [];
-
         foreach ($this->getFiles() as $file) {
             try {
                 $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
                 $traverser = new NodeTraverser;
 
                 $stmts = $parser->parse(file_get_contents($file));
-                $traverser->addVisitor($classVisitor = new ClassVisitor());
+                $traverser->addVisitor($this->visitor);
 
                 $traverser->traverse($stmts);
-
-                foreach ($classVisitor->getClasses() as $class) {
-                    $classes[$class->getFullyQualifiedNamespace()] = $class;
-                }
             } catch (\Throwable $e) {
                 echo 'Unable to retrieve information for file "'.$file.'". '.$e->getMessage().'. Line: '.$e->getLine().' File: '.$e->getFile();
             }
         }
+    }
 
-        return $classes;
+    /**
+     * Get an array of all the class models with their fully qualified namespace as the key.
+     *
+     * @return \jacknoordhuis\classinformationdumper\model\ClassModel[]
+     */
+    public function getClassModels(): array
+    {
+        $classes = $this->visitor->getClasses();
+
+        return array_combine(
+            array_map(function(ClassModel $model) {
+                return $model->getFullyQualifiedNamespace();
+            }, $classes), $classes);
+    }
+
+    /**
+     * Get an array of all the interface models with their fully qualified namespace as the key.
+     *
+     * @return \jacknoordhuis\classinformationdumper\model\InterfaceModel[]
+     */
+    public function getInterfaceModels(): array
+    {
+        $interfaces = $this->visitor->getInterfaces();
+
+        return array_combine(
+            array_map(function(InterfaceModel $model) {
+                return $model->getFullyQualifiedNamespace();
+            }, $interfaces), $interfaces);
     }
 
     /**
@@ -93,16 +127,43 @@ class DirectoryInformation
     {
         $classes = $this->getClassModels();
 
-        return array_combine(
-            array_map(function(ClassModel $model) {
-                return $model->getFullyQualifiedNamespace();
-            }, $classes),
-            array_map(function(ClassModel $model) {
+        return array_map(function(ClassModel $model) {
                 return $model->getInformation();
-            }, $classes)
-        );
+            }, $classes);
     }
 
+    /**
+     * Get an array of all the interfaces and their constants and methods.
+     *
+     * @return array
+     */
+    public function getInterfaceInformation(): array
+    {
+        $interfaces = $this->getInterfaceModels();
+
+        return array_map(function(InterfaceModel $model) {
+                return $model->getInformation();
+            }, $interfaces);
+    }
+
+    /**
+     * Get an array of all the class and interface models and their constants, properties and methods.
+     *
+     * @return array
+     */
+    public function getModelInformation(): array
+    {
+        return [
+            'classes' => $this->getClassInformation(),
+            'interfaces' => $this->getInterfaceInformation(),
+        ];
+    }
+
+    /**
+     * Get an array of all php files in the subject directory.
+     *
+     * @return array
+     */
     public function getFiles()
     {
         $files = [];

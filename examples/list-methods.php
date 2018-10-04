@@ -73,7 +73,7 @@ $classes = (new \jacknoordhuis\classinformationdumper\DirectoryInformation($DIRE
 $methodList = [];
 foreach ($classes as $class) {
     foreach ($class->getMethods() as $method) {
-        if(!in_array($method->getName(), $methodList)) {
+        if(!$method->isPrivate() and !in_array($method->getName(), $methodList)) {
             $methodList[] = $method->getName();
         }
     }

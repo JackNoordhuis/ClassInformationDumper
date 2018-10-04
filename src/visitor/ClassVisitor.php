@@ -124,7 +124,7 @@ class ClassVisitor extends NodeVisitorAbstract
         $items = [];
 
         foreach ($array->items as $item) {
-            $items[] = $this->fetchExprValue($item->value);
+            $items[$this->fetchExprValue($item->key)] = $this->fetchExprValue($item->value);
         }
 
         return $items;

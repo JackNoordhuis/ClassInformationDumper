@@ -68,21 +68,28 @@ switch (count($ARGS)) {
 
 $info = (new \jacknoordhuis\classinformationdumper\DirectoryInformation($DIRECTORY))->getClassInformation();
 
-if ($OUT === null) {
-    fprintf(STDERR, '%s%s', json_encode($info), PHP_EOL);
-}
-$file = fopen($OUT, 'w') or die("Unable to open output file!\n");
+$lines = [];
 switch ($FORMAT) {
     case 'json':
-        fwrite($file, json_encode($info));
+        $lines[] = json_encode($info);
         break;
     case 'php':
-        fwrite($file, '<?php'.PHP_EOL.PHP_EOL);
-        fwrite($file, var_export($info, true).';');
+        $lines[] = '<?php'.PHP_EOL.PHP_EOL;
+        $lines[] = var_export($info, true).';';
         break;
     case 'serialize':
-        fwrite($file, serialize($info));
+        $lines[] = serialize($info);
         break;
 }
 
-fclose($file);
+if ($OUT === null) {
+    foreach($lines as $line) {
+        fprintf(STDERR, '%s', $line);
+    }
+} else {
+    $file = fopen($OUT, 'w') or die("Unable to open output file!\n");
+    foreach($lines as $line) {
+        fwrite($file, $line);
+    }
+    fclose($file);
+}

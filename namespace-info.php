@@ -73,7 +73,7 @@ switch ($FORMAT) {
         break;
     case 'php':
         $lines[] = '<?php'.PHP_EOL.PHP_EOL;
-        $lines[] = Helper::stripBlankLines(Helper::stripNumericKeys(var_export($info, true)).';';
+        $lines[] = Helper::stripBlankLines(Helper::stripNumericKeys(var_export($info, true))).';';
         break;
     case 'serialize':
         $lines[] = serialize($info);

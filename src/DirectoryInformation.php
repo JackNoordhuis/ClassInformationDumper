@@ -121,7 +121,7 @@ class DirectoryInformation
     /**
      * Get an array of all the trait models with their fully qualified namespace as the key.
      *
-     * @return array
+     * @return TraitModel[]
      */
     public function getTraitModels(): array
     {

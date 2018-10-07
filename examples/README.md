@@ -1,0 +1,11 @@
+php ./examples/list-classes.php ../src -f php -o ../output/classes.php
+php ./examples/list-classes-shortname.php ../PocketMine-MP/src -f php -o ../output/classes-shortname.php
+php ./examples/list-constants.php ../src -f php -o ../output/constants.php
+php ./examples/list-interfaces.php ../src -f php -o ../output/interfaces.php
+php ./examples/list-interfaces-shortname.php ../src -f php -o ../output/interfaces-shortname.php
+php ./examples/list-methods.php ../src -f php -o ../output/methods.php
+php ./examples/list-namespace-parts.php ../src -f php -o ../output/namespace-parts.php
+php ./examples/list-namespaces.php ../src -f php -o ../output/namespaces.php
+php ./examples/list-properties.php ../src -f php -o ../output/properties.php
+php ./examples/list-traits.php ../src -f php -o ../output/traits.php
+php ./examples/list-traits-shortname.php ../src -f php -o ../output/traits-shortname.php
